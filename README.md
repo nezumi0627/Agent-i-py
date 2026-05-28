@@ -1,4 +1,4 @@
-# AgentI-py
+# Agent-i-py
 
 LINE AI（Agent I）の強力でPythonicなクライアントライブラリです。WebView版とNative版の両方のAPIに対応し、完全にオブジェクト指向で型安全な設計になっています。
 

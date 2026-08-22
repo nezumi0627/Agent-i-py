@@ -1,4 +1,5 @@
 """LINE AI クライアント例外階層"""
+
 from __future__ import annotations
 
 

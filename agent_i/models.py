@@ -1,9 +1,11 @@
 """LINE AI クライアントのデータモデル"""
+
 from __future__ import annotations
 
+import contextlib
 import json
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass
@@ -15,7 +17,7 @@ class ThreadInfo:
 
     # 後方互換エイリアス（snake_case に統一、旧 camelCase も維持）
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "ThreadInfo":
+    def from_dict(cls, data: dict[str, Any]) -> ThreadInfo:
         """APIレスポンス辞書からインスタンスを生成"""
         return cls(
             thread_id=data.get("threadId", ""),
@@ -29,9 +31,9 @@ class ChatMessage:
 
     id: str
     role: str
-    contents: List[Dict[str, str]]
+    contents: list[dict[str, str]]
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """辞書表現に変換"""
         return {"id": self.id, "role": self.role, "contents": self.contents}
 
@@ -40,29 +42,25 @@ class ChatMessage:
 class AgentIChunk:
     """Agent I (WebView) 用 SSE チャンク"""
 
-    event: Optional[str]
+    event: str | None
     data: Any
-    text: Optional[str]
+    text: str | None
 
     @classmethod
-    def from_sse_event(
-        cls, data: str, event_name: Optional[str] = None
-    ) -> Optional["AgentIChunk"]:
+    def from_sse_event(cls, data: str, event_name: str | None = None) -> AgentIChunk | None:
         """SSEイベントデータからインスタンスを生成"""
         if not data:
             return None
 
         parsed: Any = data
         if data.startswith(("{", "[")):
-            try:
+            with contextlib.suppress(json.JSONDecodeError):
                 parsed = json.loads(data)
-            except json.JSONDecodeError:
-                pass
 
         return cls(event=event_name, data=parsed, text=cls._extract_text(parsed))
 
     @staticmethod
-    def _extract_text(data: Any) -> Optional[str]:
+    def _extract_text(data: Any) -> str | None:
         """ペイロードからテキストを抽出"""
         if isinstance(data, str):
             return data
@@ -78,7 +76,7 @@ class AgentIChunk:
                 if isinstance(msg, str):
                     return msg
                 if isinstance(msg, dict) and isinstance(msg.get("text"), str):
-                    return msg["text"]
+                    return str(msg["text"])
 
         # 一般的なフォールバック
         for key in ("text", "delta", "content"):
@@ -104,16 +102,14 @@ class AgentIChunk:
 class LineAiQueryChunk:
     """ネイティブ LINE AI 用 SSE チャンク"""
 
-    event: Optional[str]
+    event: str | None
     data: Any
 
     @classmethod
-    def from_sse_block(
-        cls, block: str, event_name: Optional[str] = None
-    ) -> "LineAiQueryChunk":
+    def from_sse_block(cls, block: str, event_name: str | None = None) -> LineAiQueryChunk:
         """SSEブロックテキストからインスタンスを生成"""
         event = event_name
-        data_lines: List[str] = []
+        data_lines: list[str] = []
 
         for line in block.split("\n"):
             if line.startswith("event:"):
@@ -124,10 +120,8 @@ class LineAiQueryChunk:
         raw = "\n".join(data_lines)
         parsed: Any = raw
         if raw:
-            try:
+            with contextlib.suppress(json.JSONDecodeError):
                 parsed = json.loads(raw)
-            except json.JSONDecodeError:
-                pass
 
         return cls(event=event, data=parsed)
 
@@ -136,12 +130,12 @@ class LineAiQueryChunk:
 class RateLimitInfo:
     """レートリミット情報"""
 
-    limit: Optional[str] = None
-    remaining: Optional[str] = None
-    usage: Optional[str] = None
+    limit: str | None = None
+    remaining: str | None = None
+    usage: str | None = None
 
     @classmethod
-    def from_headers(cls, headers: Any) -> "RateLimitInfo":
+    def from_headers(cls, headers: Any) -> RateLimitInfo:
         """レスポンスヘッダーからレートリミット情報を抽出"""
         return cls(
             limit=headers.get("x-ratelimit-limit"),

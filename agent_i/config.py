@@ -1,4 +1,5 @@
 """LINE AI クライアント設定定数・列挙型"""
+
 from __future__ import annotations
 
 from enum import Enum

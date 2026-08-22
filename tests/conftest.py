@@ -1,4 +1,5 @@
 """pytest 共通フィクスチャ"""
+
 from __future__ import annotations
 
 import pytest

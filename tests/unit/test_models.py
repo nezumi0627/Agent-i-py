@@ -1,7 +1,6 @@
 """モデルクラスの単体テスト"""
-from __future__ import annotations
 
-import pytest
+from __future__ import annotations
 
 from agent_i.models import (
     AgentIChunk,

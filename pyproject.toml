@@ -1,6 +1,6 @@
 [build-system]
 requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "agent-i-py"
@@ -34,6 +34,7 @@ include = ["agent_i*"]
 [tool.ruff]
 line-length = 100
 target-version = "py38"
+extend-exclude = ["README.md"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
@@ -43,7 +44,6 @@ ignore = ["E501"]
 # Mypy
 # ---------------------------------------------------------------------------
 [tool.mypy]
-python_version = "3.8"
 strict = true
 ignore_missing_imports = true
 

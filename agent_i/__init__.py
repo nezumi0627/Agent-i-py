@@ -22,6 +22,7 @@
     for chunk in client.query(thread_id=thread_id, message="元気？"):
         print(chunk.data)
 """
+
 from __future__ import annotations
 
 from .config import AgentIConfig, AgentSource, ContextType, LineAiConfig

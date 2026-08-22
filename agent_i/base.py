@@ -1,8 +1,9 @@
 """基底APIクライアント"""
+
 from __future__ import annotations
 
 import json
-from typing import Any, Dict, Optional
+from typing import Any
 
 import requests
 
@@ -54,7 +55,7 @@ class BaseApiClient:
         method: str,
         url: str,
         *,
-        headers: Optional[Dict[str, str]] = None,
+        headers: dict[str, str] | None = None,
         json_data: Any = None,
         data: Any = None,
         stream: bool = False,
@@ -92,9 +93,7 @@ class BaseApiClient:
     # Public HTTP methods
     # ------------------------------------------------------------------
 
-    def get(
-        self, url: str, *, headers: Optional[Dict[str, str]] = None
-    ) -> LineAiResponse:
+    def get(self, url: str, *, headers: dict[str, str] | None = None) -> LineAiResponse:
         """GETリクエスト"""
         return self._wrap_response(self._request("GET", url, headers=headers))
 
@@ -102,7 +101,7 @@ class BaseApiClient:
         self,
         url: str,
         *,
-        headers: Optional[Dict[str, str]] = None,
+        headers: dict[str, str] | None = None,
         json_data: Any = None,
         data: Any = None,
     ) -> LineAiResponse:
@@ -111,8 +110,6 @@ class BaseApiClient:
             self._request("POST", url, headers=headers, json_data=json_data, data=data)
         )
 
-    def delete(
-        self, url: str, *, headers: Optional[Dict[str, str]] = None
-    ) -> LineAiResponse:
+    def delete(self, url: str, *, headers: dict[str, str] | None = None) -> LineAiResponse:
         """DELETEリクエスト"""
         return self._wrap_response(self._request("DELETE", url, headers=headers))

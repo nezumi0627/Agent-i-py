@@ -1,9 +1,10 @@
 """ネイティブ LINE AI クライアント"""
+
 from __future__ import annotations
 
-from typing import Dict, Generator, Optional
+from typing import Generator
+from urllib.parse import quote
 
-import requests
 import sseclient
 
 from .base import BaseApiClient
@@ -56,13 +57,11 @@ class LineAiClient(BaseApiClient):
     # Internal helpers
     # ------------------------------------------------------------------
 
-    def _headers(self, extra: Optional[Dict[str, str]] = None) -> Dict[str, str]:
+    def _headers(self, extra: dict[str, str] | None = None) -> dict[str, str]:
         """共通リクエストヘッダーを構築する"""
-        headers: Dict[str, str] = {
+        headers: dict[str, str] = {
             "accept": "application/json",
-            "user-agent": (
-                f"LINE/{self.line_version} CFNetwork/3860.200.71 Darwin/25.1.0"
-            ),
+            "user-agent": (f"LINE/{self.line_version} CFNetwork/3860.200.71 Darwin/25.1.0"),
             "x-access-token": self.access_token,
             "x-line-version": self.line_version,
             "x-line-os": self.line_os,
@@ -72,7 +71,7 @@ class LineAiClient(BaseApiClient):
             headers.update(extra)
         return headers
 
-    def _json_headers(self, extra: Optional[Dict[str, str]] = None) -> Dict[str, str]:
+    def _json_headers(self, extra: dict[str, str] | None = None) -> dict[str, str]:
         """JSON ボディを送信する場合のヘッダー"""
         return self._headers({"content-type": "application/json; charset=utf-8", **(extra or {})})
 
@@ -87,42 +86,32 @@ class LineAiClient(BaseApiClient):
     def get_prompt_presets(
         self,
         context_type: ContextType | str,
-        accept_language: Optional[str] = None,
+        accept_language: str | None = None,
     ) -> LineAiResponse:
         """``GET /v2/{contextType}/prompt-preset`` — プロンプトプリセット一覧を取得する"""
         ctx = (
-            ContextType(context_type).value
-            if isinstance(context_type, str)
-            else context_type.value
+            ContextType(context_type).value if isinstance(context_type, str) else context_type.value
         )
         extra = {"accept-language": accept_language} if accept_language else None
-        return self.get(
-            f"{self.host}/v2/{ctx}/prompt-preset", headers=self._headers(extra)
-        )
+        return self.get(f"{self.host}/v2/{ctx}/prompt-preset", headers=self._headers(extra))
 
     def submit_agreement(self) -> LineAiResponse:
         """``POST /v2/user/agreement`` — 利用規約に同意する"""
-        return self.post(
-            f"{self.host}/v2/user/agreement", headers=self._json_headers(), data=""
-        )
+        return self.post(f"{self.host}/v2/user/agreement", headers=self._json_headers(), data="")
 
     def create_thread(self) -> LineAiResponse:
         """``POST /v2/thread`` — 新しいスレッドを作成する"""
-        return self.post(
-            f"{self.host}/v2/thread", headers=self._json_headers(), data=""
-        )
+        return self.post(f"{self.host}/v2/thread", headers=self._json_headers(), data="")
 
     def get_thread(self, thread_id: str) -> LineAiResponse:
         """``GET /v2/thread/{id}`` — スレッド情報を取得する"""
-        safe_id = requests.utils.quote(thread_id)
+        safe_id = quote(thread_id)
         return self.get(f"{self.host}/v2/thread/{safe_id}", headers=self._headers())
 
     def delete_thread(self, thread_id: str) -> LineAiResponse:
         """``DELETE /v2/thread/{id}`` — スレッドを削除する"""
-        safe_id = requests.utils.quote(thread_id)
-        return self.delete(
-            f"{self.host}/v2/thread/{safe_id}", headers=self._headers()
-        )
+        safe_id = quote(thread_id)
+        return self.delete(f"{self.host}/v2/thread/{safe_id}", headers=self._headers())
 
     def cancel_query(self, thread_id: str, run_id: str) -> LineAiResponse:
         """``POST /v2/query-ai/cancel`` — 実行中クエリをキャンセルする"""
@@ -135,9 +124,9 @@ class LineAiClient(BaseApiClient):
 
     def query(
         self,
-        thread_id: Optional[str] = None,
+        thread_id: str | None = None,
         message: str = "",
-        image_url: Optional[str] = None,
+        image_url: str | None = None,
     ) -> Generator[LineAiQueryChunk, None, None]:
         """``POST /v2/query-ai`` — AI クエリを実行し SSE ストリームを返す。
 
@@ -171,7 +160,7 @@ class LineAiClient(BaseApiClient):
             stream=True,
         )
         try:
-            for event in sseclient.SSEClient(response).events():
+            for event in sseclient.SSEClient(response).events():  # type: ignore[arg-type]
                 chunk = LineAiQueryChunk.from_sse_block(event.data, event.event)
                 if chunk:
                     yield chunk

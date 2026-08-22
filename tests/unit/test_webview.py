@@ -1,7 +1,8 @@
 """AgentIClient (WebView) の単体テスト"""
+
 from __future__ import annotations
 
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import pytest
 
@@ -50,9 +51,7 @@ class TestMintAnonymousCookies:
     @patch("agent_i.webview.requests.Session.get")
     def test_parses_set_cookie_header(self, mock_get):
         mock_resp = Mock()
-        mock_resp.headers.get.return_value = (
-            "B=anon-b; Path=/, XB=anon-xb; Path=/"
-        )
+        mock_resp.headers.get.return_value = "B=anon-b; Path=/, XB=anon-xb; Path=/"
         mock_get.return_value = mock_resp
 
         cookies = AgentIClient().mint_anonymous_cookies()
@@ -63,6 +62,7 @@ class TestMintAnonymousCookies:
     @patch("agent_i.webview.requests.Session.get")
     def test_raises_api_error_on_request_exception(self, mock_get):
         import requests as _req
+
         mock_get.side_effect = _req.RequestException("timeout")
 
         with pytest.raises(ApiError):
@@ -76,9 +76,7 @@ class TestChat:
     def _make_event(self, event_type: str, message: str) -> Mock:
         e = Mock()
         e.event = event_type
-        e.data = (
-            f'{{"type": "{event_type}", "value": {{"message": "{message}"}}}}'
-        )
+        e.data = f'{{"type": "{event_type}", "value": {{"message": "{message}"}}}}'
         return e
 
     @patch("agent_i.base.requests.Session.request")

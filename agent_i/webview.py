@@ -1,8 +1,9 @@
 """Agent I (WebView) クライアント"""
+
 from __future__ import annotations
 
 import uuid
-from typing import Dict, Generator, List, Optional
+from typing import Any, Generator
 
 import requests
 import sseclient
@@ -47,7 +48,7 @@ class AgentIClient(BaseApiClient):
         self.line_version = line_version
         self.source = AgentSource(source) if isinstance(source, str) else source
         self.endpoint = endpoint
-        self._history: List[ChatMessage] = []
+        self._history: list[ChatMessage] = []
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -58,7 +59,7 @@ class AgentIClient(BaseApiClient):
         """32 文字の 16 進 ID を生成する"""
         return uuid.uuid4().hex
 
-    def _chat_headers(self) -> Dict[str, str]:
+    def _chat_headers(self) -> dict[str, str]:
         """チャットリクエスト用ヘッダーを構築する"""
         return {
             "user-agent": (
@@ -79,9 +80,7 @@ class AgentIClient(BaseApiClient):
             "cookie": self.cookies,
         }
 
-    def _build_body(
-        self, extra: Optional[Dict[str, str]] = None
-    ) -> Dict:
+    def _build_body(self, extra: dict[str, str] | None = None) -> dict[str, Any]:
         """チャットリクエストボディを組み立てる"""
         extra = extra or {}
         return {
@@ -105,7 +104,7 @@ class AgentIClient(BaseApiClient):
     # Public API
     # ------------------------------------------------------------------
 
-    def build_webview_url(self, query: Optional[str] = None) -> str:
+    def build_webview_url(self, query: str | None = None) -> str:
         """LINE Android が WebView で読み込む URL を構築する"""
         params = {
             "fr": self.source.frcode,
@@ -130,20 +129,16 @@ class AgentIClient(BaseApiClient):
             response = self.session.get(url, allow_redirects=True, timeout=self.timeout)
             raw_set_cookie = response.headers.get("set-cookie", "")
             cookies = [
-                part.split(";")[0].strip()
-                for part in raw_set_cookie.split(",")
-                if "=" in part
+                part.split(";")[0].strip() for part in raw_set_cookie.split(",") if "=" in part
             ]
             return "; ".join(filter(None, cookies))
         except requests.RequestException as exc:
-            raise ApiError(
-                f"Failed to fetch anonymous cookies: {exc}", status_code=0
-            ) from exc
+            raise ApiError(f"Failed to fetch anonymous cookies: {exc}", status_code=0) from exc
 
     def chat(
         self,
         user_text: str,
-        extra: Optional[Dict[str, str]] = None,
+        extra: dict[str, str] | None = None,
     ) -> Generator[AgentIChunk, None, None]:
         """メッセージを送信し、SSE チャンクをジェネレートする。
 
@@ -178,9 +173,9 @@ class AgentIClient(BaseApiClient):
             stream=True,
         )
 
-        assistant_parts: List[str] = []
+        assistant_parts: list[str] = []
         try:
-            for event in sseclient.SSEClient(response).events():
+            for event in sseclient.SSEClient(response).events():  # type: ignore[arg-type]
                 chunk = AgentIChunk.from_sse_event(event.data, event.event)
                 if chunk:
                     if chunk.text:
@@ -203,6 +198,6 @@ class AgentIClient(BaseApiClient):
         self._history.clear()
 
     @property
-    def history(self) -> List[ChatMessage]:
+    def history(self) -> list[ChatMessage]:
         """読み取り専用の会話履歴"""
         return list(self._history)

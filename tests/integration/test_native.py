@@ -7,6 +7,7 @@ LINE_AI_CHANNEL_TOKEN 環境変数が設定されている場合のみ実行さ�
 実行方法:
     LINE_AI_CHANNEL_TOKEN=xxx pytest tests/integration/ -v
 """
+
 from __future__ import annotations
 
 import os
@@ -14,12 +15,9 @@ import os
 import pytest
 
 from agent_i import LineAiClient
-from agent_i.exceptions import LineAiError
 
 TOKEN = os.getenv("LINE_AI_CHANNEL_TOKEN", "")
-skip_if_no_token = pytest.mark.skipif(
-    not TOKEN, reason="LINE_AI_CHANNEL_TOKEN not set"
-)
+skip_if_no_token = pytest.mark.skipif(not TOKEN, reason="LINE_AI_CHANNEL_TOKEN not set")
 
 
 @skip_if_no_token

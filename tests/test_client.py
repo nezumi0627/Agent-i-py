@@ -1,9 +1,11 @@
 """
 LINE AIクライアントのテスト（後方互換テスト）
 """
-import sys
+
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import sys
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import unittest
 from unittest.mock import Mock, patch
@@ -14,7 +16,6 @@ from agent_i import (
     AgentIConfig,
     AgentSource,
     ChatMessage,
-    ContextType,
     LineAiClient,
     LineAiConfig,
     LineAiQueryChunk,
@@ -22,7 +23,6 @@ from agent_i import (
     RateLimitInfo,
     ThreadInfo,
 )
-from agent_i.exceptions import ApiError
 
 
 class TestAgentIClient(unittest.TestCase):
@@ -35,9 +35,7 @@ class TestAgentIClient(unittest.TestCase):
     def test_mint_anonymous_cookies(self, mock_get):
         """匿名クッキー取得のテスト"""
         mock_response = Mock()
-        mock_response.headers.get.return_value = (
-            "B=anon-b-value; Path=/, XB=anon-xb-value; Path=/"
-        )
+        mock_response.headers.get.return_value = "B=anon-b-value; Path=/, XB=anon-xb-value; Path=/"
         mock_get.return_value = mock_response
 
         cookies = self.client.mint_anonymous_cookies()
@@ -52,8 +50,7 @@ class TestAgentIClient(unittest.TestCase):
         self.assertIn("fr=line_agenti_chattab_searchbar", url)
         self.assertIn("frtype=line_chattab_searchbar", url)
         self.assertTrue(
-            "q=%E3%81%93%E3%82%93%E3%81%AB%E3%81%A1%E3%81%AF" in url
-            or "q=こんにちは" in url
+            "q=%E3%81%93%E3%82%93%E3%81%AB%E3%81%A1%E3%81%AF" in url or "q=こんにちは" in url
         )
 
     def test_extract_text(self):
@@ -86,8 +83,7 @@ class TestAgentIClient(unittest.TestCase):
             mock_event = Mock()
             mock_event.event = "compositeMessage-delta"
             mock_event.data = (
-                '{"type": "compositeMessage-delta",'
-                ' "value": {"message": "テスト応答"}}'
+                '{"type": "compositeMessage-delta", "value": {"message": "テスト応答"}}'
             )
 
             mock_sse_instance = Mock()
@@ -150,27 +146,19 @@ class TestIntegration(unittest.TestCase):
     def test_constants(self):
         """定数のテスト"""
         self.assertEqual(LineAiConfig.CHANNEL_ID, "2006890580")
-        self.assertEqual(
-            LineAiConfig.DEFAULT_HOST, "https://line-x-openai.line-apps.com"
-        )
+        self.assertEqual(LineAiConfig.DEFAULT_HOST, "https://line-x-openai.line-apps.com")
         self.assertEqual(
             AgentIConfig.DEFAULT_ENDPOINT,
             "https://search-agent.yahoo.co.jp/v2/chat",
         )
-        self.assertEqual(
-            AgentSource.CHAT_TAB.frcode, "line_agenti_chattab_searchbar"
-        )
+        self.assertEqual(AgentSource.CHAT_TAB.frcode, "line_agenti_chattab_searchbar")
 
     def test_data_classes(self):
         """データクラスのテスト"""
-        thread_info = ThreadInfo.from_dict(
-            {"threadId": "test", "encryptionKey": "key"}
-        )
+        thread_info = ThreadInfo.from_dict({"threadId": "test", "encryptionKey": "key"})
         self.assertEqual(thread_info.thread_id, "test")
 
-        chat_msg = ChatMessage(
-            id="id1", role="user", contents=[{"type": "text", "text": "hi"}]
-        )
+        chat_msg = ChatMessage(id="id1", role="user", contents=[{"type": "text", "text": "hi"}])
         self.assertEqual(chat_msg.role, "user")
 
         chunk = AgentIChunk(event="message", data="test", text="test")
@@ -179,9 +167,7 @@ class TestIntegration(unittest.TestCase):
         query_chunk = LineAiQueryChunk(event="run.started", data={"runId": "R1"})
         self.assertEqual(query_chunk.event, "run.started")
 
-        response = LineAiResponse(
-            status=200, rate_limit=RateLimitInfo(), body={"ok": True}
-        )
+        response = LineAiResponse(status=200, rate_limit=RateLimitInfo(), body={"ok": True})
         self.assertEqual(response.status, 200)
 
 

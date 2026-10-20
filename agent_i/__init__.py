@@ -44,11 +44,13 @@ from .models import (
 )
 from .native import LineAiClient
 from .webview import AgentIClient
+from .yahoo import YahooAgentClient
 
 __all__ = [
     # Clients
     "AgentIClient",
     "LineAiClient",
+    "YahooAgentClient",
     # Config
     "AgentIConfig",
     "AgentSource",

@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import uuid
-from typing import Any, Generator
+from collections.abc import Generator
+from typing import Any
 
 import requests
 import sseclient

@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Generator
+from collections.abc import Generator
+from typing import Any
 from urllib.parse import quote
 
 import sseclient
@@ -83,6 +84,64 @@ class LineAiClient(BaseApiClient):
         """``GET /v2/service-info`` — AI サービス一覧を取得する"""
         return self.get(f"{self.host}/v2/service-info", headers=self._headers())
 
+    def get_user_info(self, liff_access_token: str) -> LineAiResponse:
+        """``GET /v1/user/info`` — AI チャット利用者情報を取得する。"""
+        return self.get(
+            f"{LineAiConfig.PUBLIC_HOST}/v1/user/info",
+            headers={"x-liff-access-token": liff_access_token, "accept": "application/json"},
+        )
+
+    def submit_chat_agreement(
+        self,
+        liff_access_token: str,
+        *,
+        communication_info: bool = True,
+        version: str = "",
+    ) -> LineAiResponse:
+        """``POST /v1/user-agreement`` — AI チャットの同意状態を送信する。"""
+        payload: dict[str, Any] = {"communicationInfo": communication_info}
+        if version:
+            payload["communicationInfoVersion"] = version
+        return self.post(
+            f"{LineAiConfig.PUBLIC_HOST}/v1/user-agreement",
+            headers={
+                "x-liff-access-token": liff_access_token,
+                "content-type": "application/json",
+            },
+            json_data=payload,
+        )
+
+    def check_ai_availability(self, *, lang_code: str = "ja") -> LineAiResponse:
+        """``GET /ai-ts/v1/availability`` — LINE AI 機能の利用可否を取得する。"""
+        return self.get(
+            f"{LineAiConfig.CHAT_HOST}/ai-ts/v1/availability?lang_code={quote(lang_code)}",
+            headers=self._headers(),
+        )
+
+    def operate_ai(self, operation: str, params: dict[str, object]) -> LineAiResponse:
+        """``POST /ai-ts/v1/operation`` — HARで観測した LINE AI 操作を実行する。"""
+        return self.post(
+            f"{LineAiConfig.CHAT_HOST}/ai-ts/v1/operation",
+            headers=self._json_headers(),
+            json_data={"op": operation, "params": params},
+        )
+
+    def get_image_edit_presets(self) -> LineAiResponse:
+        """``GET /v2/image-edit/prompt-preset`` — 画像編集プリセットを取得する。"""
+        return self.get(f"{self.host}/v2/image-edit/prompt-preset", headers=self._headers())
+
+    def edit_image(self, image_urls: list[str], preset_id: str, history_id: int) -> LineAiResponse:
+        """``POST /v2/image-edit`` — プリセットで画像を編集する。"""
+        return self.post(
+            f"{self.host}/v2/image-edit",
+            headers=self._json_headers(),
+            json_data={
+                "imageList": [{"url": url} for url in image_urls],
+                "presetId": preset_id,
+                "historyId": history_id,
+            },
+        )
+
     def get_prompt_presets(
         self,
         context_type: ContextType | str,
@@ -105,12 +164,12 @@ class LineAiClient(BaseApiClient):
 
     def get_thread(self, thread_id: str) -> LineAiResponse:
         """``GET /v2/thread/{id}`` — スレッド情報を取得する"""
-        safe_id = quote(thread_id)
+        safe_id = quote(thread_id, safe="")
         return self.get(f"{self.host}/v2/thread/{safe_id}", headers=self._headers())
 
     def delete_thread(self, thread_id: str) -> LineAiResponse:
         """``DELETE /v2/thread/{id}`` — スレッドを削除する"""
-        safe_id = quote(thread_id)
+        safe_id = quote(thread_id, safe="")
         return self.delete(f"{self.host}/v2/thread/{safe_id}", headers=self._headers())
 
     def cancel_query(self, thread_id: str, run_id: str) -> LineAiResponse:

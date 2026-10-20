@@ -39,6 +39,8 @@ class LineAiConfig:
     DEFAULT_LINE_VERSION: str = "26.7.2"
     DEFAULT_LINE_OS: str = "IOS"
     DEFAULT_ACCEPT_LANGUAGE: str = "ja"
+    CHAT_HOST: str = "https://chat-ai.line-apps.com"
+    PUBLIC_HOST: str = "https://ai-chat-public.line-apps.com"
 
 
 class AgentIConfig:
@@ -48,3 +50,5 @@ class AgentIConfig:
     WEBVIEW_BASE_URL: str = "https://search.yahoo.co.jp/chat"
     DEFAULT_LINE_VERSION: str = "26.7.2"
     DEFAULT_SOURCE: AgentSource = AgentSource.CHAT_TAB
+    TASK_HOST: str = "https://agent-task.yahoo.co.jp"
+    PERSONALIZE_HOST: str = "https://agent-personalize.yahoo.co.jp"

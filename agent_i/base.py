@@ -113,3 +113,15 @@ class BaseApiClient:
     def delete(self, url: str, *, headers: dict[str, str] | None = None) -> LineAiResponse:
         """DELETEリクエスト"""
         return self._wrap_response(self._request("DELETE", url, headers=headers))
+
+    def patch(
+        self,
+        url: str,
+        *,
+        headers: dict[str, str] | None = None,
+        json_data: Any = None,
+    ) -> LineAiResponse:
+        """PATCHリクエスト"""
+        return self._wrap_response(
+            self._request("PATCH", url, headers=headers, json_data=json_data)
+        )

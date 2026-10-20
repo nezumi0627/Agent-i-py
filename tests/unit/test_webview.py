@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
@@ -82,7 +82,7 @@ class TestChat:
     @patch("agent_i.base.requests.Session.request")
     @patch("agent_i.webview.sseclient.SSEClient")
     def test_yields_chunks(self, mock_sse_cls, mock_request):
-        mock_request.return_value = Mock()
+        mock_request.return_value = MagicMock()
         mock_sse = Mock()
         mock_sse.events.return_value = [
             self._make_event("compositeMessage-delta", "Hello"),
@@ -97,7 +97,7 @@ class TestChat:
     @patch("agent_i.base.requests.Session.request")
     @patch("agent_i.webview.sseclient.SSEClient")
     def test_appends_to_history(self, mock_sse_cls, mock_request):
-        mock_request.return_value = Mock()
+        mock_request.return_value = MagicMock()
         mock_sse = Mock()
         mock_sse.events.return_value = [
             self._make_event("compositeMessage-delta", "World"),
@@ -113,7 +113,7 @@ class TestChat:
     @patch("agent_i.base.requests.Session.request")
     @patch("agent_i.webview.sseclient.SSEClient")
     def test_raises_stream_error(self, mock_sse_cls, mock_request):
-        mock_request.return_value = Mock()
+        mock_request.return_value = MagicMock()
         mock_sse = Mock()
         mock_sse.events.side_effect = Exception("broken pipe")
         mock_sse_cls.return_value = mock_sse
@@ -126,7 +126,7 @@ class TestChat:
     @patch("agent_i.webview.sseclient.SSEClient")
     def test_auto_mints_cookies(self, mock_sse_cls, mock_request, mock_mint):
         client = AgentIClient()  # cookies=""
-        mock_request.return_value = Mock()
+        mock_request.return_value = MagicMock()
         mock_sse = Mock()
         mock_sse.events.return_value = []
         mock_sse_cls.return_value = mock_sse
@@ -142,7 +142,7 @@ class TestReset:
     @patch("agent_i.webview.sseclient.SSEClient")
     def test_clears_history(self, mock_sse_cls, mock_request):
         client = AgentIClient(cookies="B=x")
-        mock_request.return_value = Mock()
+        mock_request.return_value = MagicMock()
         mock_sse = Mock()
         mock_sse.events.return_value = []
         mock_sse_cls.return_value = mock_sse

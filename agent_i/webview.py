@@ -176,7 +176,7 @@ class AgentIClient(BaseApiClient):
 
         assistant_parts: list[str] = []
         try:
-            for event in sseclient.SSEClient(response).events():  # type: ignore[arg-type]
+            for event in sseclient.SSEClient(iter(response)).events():
                 chunk = AgentIChunk.from_sse_event(event.data, event.event)
                 if chunk:
                     if chunk.text:

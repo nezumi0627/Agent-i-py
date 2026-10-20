@@ -219,7 +219,7 @@ class LineAiClient(BaseApiClient):
             stream=True,
         )
         try:
-            for event in sseclient.SSEClient(response).events():  # type: ignore[arg-type]
+            for event in sseclient.SSEClient(iter(response)).events():
                 chunk = LineAiQueryChunk.from_sse_block(event.data, event.event)
                 if chunk:
                     yield chunk

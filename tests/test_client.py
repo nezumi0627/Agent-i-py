@@ -8,7 +8,7 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 from agent_i import (
     AgentIChunk,
@@ -77,7 +77,7 @@ class TestAgentIClient(unittest.TestCase):
     def test_chat_with_auto_cookies(self, mock_mint, mock_request):
         """自動クッキー取得付きチャットのテスト"""
         mock_mint.return_value = "B=test_b; XB=test_xb"
-        mock_request.return_value = Mock()
+        mock_request.return_value = MagicMock()
 
         with patch("agent_i.webview.sseclient.SSEClient") as mock_sse:
             mock_event = Mock()

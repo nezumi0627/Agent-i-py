@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 from agent_i import LineAiClient
 
@@ -18,6 +18,19 @@ def response() -> Mock:
 
 
 class TestNativeObservedEndpoints:
+    @patch("agent_i.native.sseclient.SSEClient")
+    @patch("agent_i.base.requests.Session.request")
+    def test_query_passes_an_iterator_to_sseclient(self, request: Mock, sse_client: Mock) -> None:
+        stream_response = MagicMock()
+        stream_response.ok = True
+        stream_response.__iter__.return_value = iter(())
+        request.return_value = stream_response
+        sse_client.return_value.events.return_value = []
+
+        list(LineAiClient(access_token="channel-token").query(message="hello"))
+
+        assert sse_client.call_args.args[0] is stream_response.__iter__.return_value
+
     @patch("agent_i.base.requests.Session.request")
     def test_get_user_info_uses_liff_token(self, request: Mock) -> None:
         request.return_value = response()

@@ -149,7 +149,7 @@ class TestIntegration(unittest.TestCase):
         self.assertEqual(LineAiConfig.DEFAULT_HOST, "https://line-x-openai.line-apps.com")
         self.assertEqual(
             AgentIConfig.DEFAULT_ENDPOINT,
-            "https://search-agent.yahoo.co.jp/v2/chat",
+            "https://agt.search.yahoo.co.jp/v2/chat",
         )
         self.assertEqual(AgentSource.CHAT_TAB.frcode, "line_agenti_chattab_searchbar")
 

@@ -46,7 +46,7 @@ class LineAiConfig:
 class AgentIConfig:
     """AgentIClient 設定定数"""
 
-    DEFAULT_ENDPOINT: str = "https://search-agent.yahoo.co.jp/v2/chat"
+    DEFAULT_ENDPOINT: str = "https://agt.search.yahoo.co.jp/v2/chat"
     WEBVIEW_BASE_URL: str = "https://search.yahoo.co.jp/chat"
     DEFAULT_LINE_VERSION: str = "26.7.2"
     DEFAULT_SOURCE: AgentSource = AgentSource.CHAT_TAB

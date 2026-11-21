@@ -68,7 +68,7 @@ class AgentIChunk:
         if not data or not isinstance(data, dict):
             return None
 
-        # Yahoo search-agent wire shape
+        # Yahoo Agent i (SARA) wire shape
         if data.get("type") in ("compositeMessage-delta", "compositeMessage-end"):
             value = data.get("value")
             if isinstance(value, dict):

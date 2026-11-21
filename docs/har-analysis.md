@@ -22,6 +22,7 @@ personal data, and message text.
 
 | Host | Method and path | Purpose / observed result |
 | --- | --- | --- |
+| `agt.search.yahoo.co.jp` | `POST /v2/chat` | WebView Agent i SSE chat (`AgentIClient`); replaces `search-agent.yahoo.co.jp`, which no longer resolves. Base URL comes from `sara.baseUrl` in the `search.yahoo.co.jp/chat` page context |
 | `agent-task.yahoo.co.jp` | `GET /v1/users/tasks` | List tasks; `task_count` query parameter observed |
 | `agent-task.yahoo.co.jp` | `GET /v1/users/tasks/agent-top` | Overview and registration counts |
 | `agent-task.yahoo.co.jp` | `POST /v1/users/tasks` | Create scheduled/repeating task with form components and task settings |
